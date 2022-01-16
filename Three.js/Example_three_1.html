@@ -31,19 +31,22 @@
 		// renderer.setClearColor(0x999999, 1.0);            // comment to get default background black
 		document.body.appendChild(renderer.domElement);
 
-		// let geometry = new THREE.BoxGeometry(1, 1, 1);
-		// let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-		// let cube = new THREE.Mesh(geometry, material);
-		// scene.add(cube);
-
-		camera.position.z = 5;
-
-		window.addEventListener('resize', function () {				       
+		window.addEventListener('resize', function () {
 			renderer.setSize(window.innerWidth, window.innerHeight)
-			camera.aspect = window.innerWidth/ window.innerHeight;
+			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
 		});
 
+		// initial cube
+		let geometry = new THREE.BoxGeometry(1, 1, 1);
+		let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		const cube = new THREE.Mesh(geometry, material);
+		cube.position.set(-3, 0, 0);
+		scene.add(cube);
+
+		camera.position.z = 5;
+
+		// triangles
 		const triangles = [
 			{
 				points: [-0.2, 0.15, 0.0,
@@ -81,25 +84,105 @@
 
 			let material;
 			if (triangle.colors) {
-				material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors, side: THREE.DoubleSide });
+				material = new THREE.MeshBasicMaterial({ 
+					vertexColors: THREE.VertexColors, 
+					side: THREE.DoubleSide });
 				let colors = new Uint8Array(triangle.colors);
 				geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3, true));
 			}
 			else if (triangle.color) {
-				material = new THREE.MeshBasicMaterial({ color: triangle.color, wireframe: triangle.outlined, side: THREE.DoubleSide });
+				material = new THREE.MeshBasicMaterial({ 
+					color: triangle.color, 
+					wireframe: triangle.outlined || false, 
+					side: THREE.DoubleSide });
 			}
 
 			let mesh = new THREE.Mesh(geometry, material);
 			scene.add(mesh);
 		}
 
+		// wireframe cube
+		material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+		const cube2 = new THREE.Mesh(geometry, material);
+		cube2.position.set(3, 0, 0);
+		scene.add(cube2);
+
+		// cone
+		geometry = new THREE.ConeGeometry(1, 1, 3);
+		material = new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true });
+		const cone = new THREE.Mesh(geometry, material);
+		cone.position.set(3, 2.5, 0);
+		scene.add(cone);
+
+		// cylinder
+		geometry = new THREE.CylinderGeometry( 0.5, 0.5, 1, 5 );
+		material = new THREE.MeshBasicMaterial( {color: 0x00ffff, wireframe: true } );
+		const cylinder = new THREE.Mesh( geometry, material );
+		cylinder.position.set(-3, 2.5, 0);
+		scene.add( cylinder );
+
+		// ellipse
+		let curve = new THREE.EllipseCurve(
+			0, 0,            // ax, aY
+			0.5, 1,           // xRadius, yRadius
+			0, 2 * Math.PI,  // aStartAngle, aEndAngle
+			false,            // aClockwise
+			45                 // aRotation
+		);
+		let points = curve.getPoints( 50 );
+		geometry = new THREE.BufferGeometry().setFromPoints( points );
+		material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+		const ellipse = new THREE.Line( geometry, material );
+		ellipse.position.set(-3, -2.5, 0);
+		scene.add( ellipse );
+
+		// sine-like wave
+		curve = new THREE.SplineCurve( [
+			new THREE.Vector2( -1, 0 ),
+			new THREE.Vector2( -0.5, 0.5 ),
+			new THREE.Vector2( 0, 0 ),
+			new THREE.Vector2( 0.5, -0.5 ),
+			new THREE.Vector2( 1, 0 ),
+			new THREE.Vector2( 1.5, 0.5 ),
+			new THREE.Vector2( 2, 0 ),
+		] );
+		points = curve.getPoints( 50 );
+		geometry = new THREE.BufferGeometry().setFromPoints( points );
+		material = new THREE.LineBasicMaterial();
+		const spline = new THREE.Line( geometry, material );
+		spline.position.set(3, -2.5, 0);
+		scene.add( spline );
+
+		var clock = new THREE.Clock();
+
 
 		let render = function () {
 			requestAnimationFrame(render);
+			clock.getDelta();
+			const tick = clock.elapsedTime % 1 > 0.5;
 
-			// cube.rotation.x += 0.01;
-			// cube.rotation.y += 0.01;
-			// cube.rotation.z += 0.01;
+			// change cubes rotation
+			cube.rotation.x += 0.01;
+			cube.rotation.y += 0.01;
+			cube.rotation.z += 0.01;
+			cube2.rotation.x += 0.01;
+			cube2.rotation.y += 0.01;
+			cube2.rotation.z += 0.01;
+
+			// cylinder position
+			cylinder.position.x += tick ? 0.01 : -0.01;
+			cylinder.position.z += tick ? 0.01 : -0.01;
+			
+			// cone scale
+			cone.scale.x += tick ? 0.01 : -0.01;
+			cone.scale.y += !tick ? 0.01 : -0.01;
+
+			// blink spline
+			spline.visible = tick;
+
+			// change ellipse color
+			ellipse.material.color = new THREE.Color( Math.floor(Math.random() * 0xffffff) );         
+			ellipse.material.needsUpdate = true;
 
 			renderer.render(scene, camera);
 		};
