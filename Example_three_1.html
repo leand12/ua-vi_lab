@@ -1,0 +1,111 @@
+<!--First example inspired in https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene-->
+<!--Drawing a cube of a solid color and make it rotate-->
+
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>My first Three.js app</title>
+
+	<style>
+		canvas {
+			width: 100%;
+			height: 100%
+		}
+	</style>
+</head>
+
+
+<body>
+	<script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+
+	<script src="../../js/three.min.js"></script>
+
+	<script>
+		let scene = new THREE.Scene();
+
+		let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+		let renderer = new THREE.WebGLRenderer();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+		// renderer.setClearColor(0x999999, 1.0);            // comment to get default background black
+		document.body.appendChild(renderer.domElement);
+
+		// let geometry = new THREE.BoxGeometry(1, 1, 1);
+		// let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+		// let cube = new THREE.Mesh(geometry, material);
+		// scene.add(cube);
+
+		camera.position.z = 5;
+
+		window.addEventListener('resize', function () {				       
+			renderer.setSize(window.innerWidth, window.innerHeight)
+			camera.aspect = window.innerWidth/ window.innerHeight;
+			camera.updateProjectionMatrix();
+		});
+
+		const triangles = [
+			{
+				points: [-0.2, 0.15, 0.0,
+					0.35, 0.65, 0.0,
+				-0.85, 0.9, 0.0],
+				colors: [255, 0, 0,
+					0, 255, 0,
+					0, 0, 255],
+			},
+			{
+				points: [0.0, 0.0, 0.0,
+					0.5, 0.75, 0.0,
+					1.0, 0.0, 0.0],
+				color: 'fuchsia',
+			},
+			{
+				points: [0.15, -0.95, 0.0,
+					0.90, -0.7, 0.0,
+					0.65, 0.10, 0.0],
+				color: 'white',
+				outlined: true
+			},
+			{
+				points: [0.0, 0.0, 0.0,
+					-0.35, -1.0, 0.0,
+					-0.7, 0.25, 0.0],
+				color: 'yellow',
+			},
+		]
+
+		for (const triangle of triangles) {
+			let geometry = new THREE.BufferGeometry();
+			let vertices = new Float32Array(triangle.points);
+			geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+
+			let material;
+			if (triangle.colors) {
+				material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors, side: THREE.DoubleSide });
+				let colors = new Uint8Array(triangle.colors);
+				geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3, true));
+			}
+			else if (triangle.color) {
+				material = new THREE.MeshBasicMaterial({ color: triangle.color, wireframe: triangle.outlined, side: THREE.DoubleSide });
+			}
+
+			let mesh = new THREE.Mesh(geometry, material);
+			scene.add(mesh);
+		}
+
+
+		let render = function () {
+			requestAnimationFrame(render);
+
+			// cube.rotation.x += 0.01;
+			// cube.rotation.y += 0.01;
+			// cube.rotation.z += 0.01;
+
+			renderer.render(scene, camera);
+		};
+
+		render();
+	</script>
+</body>
+
+</html>
