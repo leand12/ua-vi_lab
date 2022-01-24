@@ -23,8 +23,31 @@
         document.body.appendChild(renderer.domElement);
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
+        function onDocumentKeyDown(event){ 
+            // Get the key code of the pressed key 
+            var keyCode = event.which;
+            if(keyCode == 76) {
+                directionalLight.visible = !directionalLight.visible;
+            } else if (keyCode == 171) {
+                directionalLight.intensity += 0.2;
+            } else if (keyCode == 173) {
+                directionalLight.intensity -= 0.2;
+            } else if (keyCode == 37) {
+                y_speed += 0.0005;
+            } else if (keyCode == 39) {
+                y_speed -= 0.0005;
+            } else if (keyCode == 38) {
+                z_incl += 0.05;
+            } else if (keyCode == 40) {
+                z_incl -= 0.05;
+            }
+        }
 
-        
+        document.addEventListener("keydown", onDocumentKeyDown, false);
+
+        let y_speed = 0.0025;
+        let z_incl = 0.41;
+
         // sphere
         const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
 		let material = new THREE.MeshPhongMaterial({
@@ -33,8 +56,8 @@
 			shininess: 100,
 			flatShading: true
 		});
-		const sphere = new THREE.Mesh(sphereGeometry, material);
-        sphere.rotation.z = 0.41;
+		let sphere = new THREE.Mesh(sphereGeometry, material);
+        sphere.rotation.z = z_incl;
 		scene.add(sphere)
 
 
@@ -56,7 +79,8 @@
         let render = function () {
             requestAnimationFrame(render);
 
-            sphere.rotation.y += 0.0025;
+            sphere.rotation.y += y_speed;
+            sphere.rotation.z = z_incl;
             controls.update();
 
             renderer.render(scene, camera);
