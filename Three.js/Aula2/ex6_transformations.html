@@ -1,0 +1,136 @@
+<!--First example inspired in https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene-->
+<!--Drawing a cube of a solid color and make it rotate-->
+
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Transformations (rotations)</title>
+
+    <style>
+        canvas {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+
+<body>
+    <script src="https://rawgithub.com/mrdoob/three.js/master/build/three.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+
+    <script src="../../js/three.min.js"></script>
+
+    <script>
+        let scene = new THREE.Scene();
+        let viewSize = 10;
+        let aspectRatio = window.innerWidth / window.innerHeight;
+        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+        let renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x999999, 1.0);            // comment to get default background black
+        document.body.appendChild(renderer.domElement);
+
+        window.addEventListener('resize', function () {
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+        camera.position.z = 5;
+        controls.update();
+
+        // ambient light
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
+        scene.add(directionalLight);
+        const alight = new THREE.AmbientLight(0xffffff);
+        scene.add(alight);
+
+        const car = new THREE.Group();
+        const axes = new THREE.Group();
+
+        // initial cube
+        const boxGeometry = new THREE.BoxGeometry(2, 1, 4);
+        let material = new THREE.MeshPhongMaterial({
+            color: 0x0066ff,
+            specular: '#a9fcff',
+            shininess: 0,
+            opacity: 0.5,
+            transparent: true,
+        });
+        const cube = new THREE.Mesh(boxGeometry, material);
+        car.add(cube);
+
+        // wheels
+        const wheelGeometry = new THREE.CylinderGeometry(0.5, 0.5, 0.2, 32);
+        const glassMaterial = new THREE.MeshPhongMaterial({
+            color: 0xff0000,
+            specular: 0xFFFFFF,
+            shininess: 0,
+            opacity: 0.5,
+            transparent: true
+        });
+        for (const pos of [[-1, -0.5, -2], [1, -0.5, 2], [-1, -0.5, 2], [1, -0.5, -2]]) {
+            let sphere = new THREE.Mesh(wheelGeometry, glassMaterial);
+            sphere.position.set(...pos);
+            sphere.rotation.z = 0.5 * Math.PI;
+            car.add(sphere);
+        }
+        // car.position.set(0);
+        scene.add(car);
+
+        // cylinders
+        const axesProps = [
+            {
+                color: 0xff0000,
+                axis: [0, 0, 1],
+            },
+            {
+                color: 0x00ff00,
+                axis: [0, 1, 0],
+            },
+            {
+                color: 0x0000ff,
+                axis: [1, 0, 0],
+            }
+        ];
+
+        const cylinderGeometry = new THREE.CylinderGeometry(0.1, 0.1, 1, 32);
+        for (const a of axesProps) {
+            let material = new THREE.MeshBasicMaterial({ color: a.color });
+            let cylinder = new THREE.Mesh(cylinderGeometry, material);
+            cylinder.rotation.set(...a.axis.map(x => 0.5 * Math.PI * x));
+            cylinder.translateY(0.5);
+            axes.add(cylinder);
+        }
+        scene.add(axes);
+
+        let offset = new THREE.Vector3(0, 0, -1);
+
+        car.position.set(1, 0, 0);
+
+        let render = function () {
+            requestAnimationFrame(render);
+
+            controls.update();
+
+            // car.parent.localToWorld(car.position);
+            car.position.sub(offset);
+            car.position.applyAxisAngle(new THREE.Vector3(0, 1, 0), 0.005);
+            car.position.add(offset);
+            // car.parent.worldToLocal(car.position); 
+
+            car.rotateOnAxis(new THREE.Vector3(0, 1, 0), 0.005);
+
+            renderer.render(scene, camera);
+        };
+
+        render();
+    </script>
+</body>
+
+</html>
