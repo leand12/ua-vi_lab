@@ -26,8 +26,8 @@
 
         const geometry = new THREE.PlaneGeometry(10, 10);
         const material = new THREE.MeshBasicMaterial({ map: tex });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+        const plane = new THREE.Mesh(geometry, material);
+        scene.add(plane);
 
         camera.position.z = 5;
         let render = function () {

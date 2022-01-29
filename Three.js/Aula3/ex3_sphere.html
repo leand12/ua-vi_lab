@@ -33,19 +33,19 @@
         function onDocumentKeyDown(event){ 
             // Get the key code of the pressed key 
             var keyCode = event.which;
-            if(keyCode == 76) {
+            if(keyCode == 76) { // L 
                 directionalLight.visible = !directionalLight.visible;
-            } else if (keyCode == 171) {
+            } else if (keyCode == 171) { // +
                 directionalLight.intensity += 0.2;
-            } else if (keyCode == 173) {
+            } else if (keyCode == 173) { // -
                 directionalLight.intensity -= 0.2;
-            } else if (keyCode == 37) {
+            } else if (keyCode == 37) { // ->
                 y_speed += 0.0005;
-            } else if (keyCode == 39) {
+            } else if (keyCode == 39) { // <-
                 y_speed -= 0.0005;
-            } else if (keyCode == 38) {
+            } else if (keyCode == 38) { // ^
                 z_incl += 0.05;
-            } else if (keyCode == 40) {
+            } else if (keyCode == 40) { // v
                 z_incl -= 0.05;
             }
         }
